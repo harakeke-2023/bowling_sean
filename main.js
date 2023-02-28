@@ -14,6 +14,20 @@
 // ]
 //
 // Score 119 (with spares, strikes and a double strike): Working
+// const frames = [
+//   [1, 2],
+//   [6, 4],
+//   [5, 4],
+//   [10, 0],
+//   [7, 2],
+//   [10, 0],
+//   [10, 0],
+//   [5, 2],
+//   [7, 0],
+//   [4, 4],
+// ]
+
+// Score 141 (includes a strike on the last frame):
 const frames = [
   [1, 2],
   [6, 4],
@@ -24,13 +38,8 @@ const frames = [
   [10, 0],
   [5, 2],
   [7, 0],
-  [4, 4],
+  [10, 10, 10],
 ]
-
-// Score 141 (includes a strike on the last frame):
-// const frames = [
-//   [1, 2], [6, 4], [5, 4], [10, 0], [7, 2], [10, 0], [10, 0], [5, 2], [7, 0], [10, 10, 10]
-// ]
 //
 // Score 300 (perfect game):
 // const frames = [
@@ -78,28 +87,31 @@ function calculateScores(arr) {
     currentFrame++
 
     // Checks if scores of two balls in a frame should not exceed 10.
-    if (frame[0] + frame[1] <= 10) {
-      // Give frame index to checkSpare function as a param from 0 to 9 and check
-      if (checkSpare(arr, idx)) {
-        // If spare is detected, add two scores of current frame and add the doubled first ball score from next frame to the number
-        totalScore += frame[0] + frame[1] + arr[idx + 1][0]
-      } else if (checkStrike(arr, idx)) {
-        // If strike is detected, run codes below
+    // Give frame index to checkSpare function as a param from 0 to 9 and check
+    if (checkSpare(arr, idx)) {
+      // If spare is detected, add two scores of current frame and add the doubled first ball score from next frame to the number
+      totalScore += frame[0] + frame[1] + arr[idx + 1][0]
+    } else if (checkStrike(arr, idx)) {
+      // If strike is detected, run codes below
+      console.log(`Array: ${arr}, Frame: ${currentFrame}, Index: ${idx} `)
 
-        // If current frame is strike and next frame is strike (double strike),
-        // total score equals to 'current frame score (10) + next frame score (10) + next next frame score (10) = 30
-        if (checkStrike(arr, idx + 1)) {
+      // If current frame is strike and next frame is strike (double strike),
+      // total score equals to 'current frame score (10) + next frame score (10) + next next frame score (10) = 30
+      if ((checkStrike(arr, idx + 1) && idx !== 8) || idx !== 9) {
+        // Check if current frame is not 9th frame as there is no 11st frame
+        if (arr[idx + 1] !== undefined && arr[idx + 2] !== undefined) {
           totalScore += frame[0] + arr[idx + 1][0] + arr[idx + 2][0]
-        } else {
-          // If not double strike, total score equals to 'current frame (10) + two scores from next frame
-          totalScore += frame[0] + arr[idx + 1][0] + arr[idx + 1][1]
         }
+      } else if (idx === 9) {
+        // If last frame, add them together
+        totalScore += frame[0] + frame[1] + frame[2]
       } else {
-        // Simply add 1st and 2nd games scores of each game to total score if none of spare and strike is detected
-        totalScore += frame[0] + frame[1]
+        // If not double strike, total score equals to 'current frame (10) + two scores from next frame
+        totalScore += frame[0] + arr[idx + 1][0] + arr[idx + 1][1]
       }
     } else {
-      console.log(`A frame should not have a score more than 10`)
+      // Simply add 1st and 2nd games scores of each game to total score if none of spare and strike is detected
+      totalScore += frame[0] + frame[1]
     }
 
     // Test output
